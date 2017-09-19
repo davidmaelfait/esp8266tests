@@ -93,9 +93,10 @@ const char *delimiters            = ", \n";                    //commands can be
 /*************************************************************************************************************
      your Command Names Here
 */
-const char *addCommandToken       = "add";                     //Modify here
-const char *subtractCommandToken  = "sub";                     //Modify here
-
+//const char *addCommandToken       = "add";                     //Modify here
+//const char *subtractCommandToken  = "sub";                     //Modify here
+const char* ssidCommandToken = "ssid";
+const char* pwdCommandToken = "pwd";
 
 /*************************************************************************************************************
     getCommandLineFromSerialPort()
@@ -145,12 +146,12 @@ getCommandLineFromSerialPort(char * commandLine)
    readWord: get a text word from the command line
 
 */
-int
-readNumber () {
-  char * numTextPtr = strtok(NULL, delimiters);         //K&R string.h  pg. 250
-  return atoi(numTextPtr);                              //K&R string.h  pg. 251
-}
-
+//int
+//readNumber () {
+//  char * numTextPtr = strtok(NULL, delimiters);         //K&R string.h  pg. 250
+//  return atoi(numTextPtr);                              //K&R string.h  pg. 251
+//}
+//
 char * readWord() {
   char * word = strtok(NULL, delimiters);               //K&R string.h  pg. 250
   return word;
@@ -166,16 +167,26 @@ nullCommand(char * ptrToCommandName) {
    Add your commands here
 */
 
-int addCommand() {                                      //Modify here
-  int firstOperand = readNumber();
-  int secondOperand = readNumber();
-  return firstOperand + secondOperand;
+//int addCommand() {                                      //Modify here
+//  int firstOperand = readNumber();
+//  int secondOperand = readNumber();
+//  return firstOperand + secondOperand;
+//}
+//
+//int subtractCommand() {                                //Modify here
+//  int firstOperand = readNumber();
+//  int secondOperand = readNumber();
+//  return firstOperand - secondOperand;
+//}
+
+char* ssidCommand()
+{
+  return readWord();
 }
 
-int subtractCommand() {                                //Modify here
-  int firstOperand = readNumber();
-  int secondOperand = readNumber();
-  return firstOperand - secondOperand;
+char* pwdCommand()
+{
+  return readWord();
 }
 
 /****************************************************
@@ -184,19 +195,19 @@ int subtractCommand() {                                //Modify here
 bool
 DoMyCommand(char * commandLine) {
   //  print2("\nCommand: ", commandLine);
-  int result;
+  char* result;
 
   char * ptrToCommandName = strtok(commandLine, delimiters);
   //  print2("commandName= ", ptrToCommandName);
 
-  if (strcmp(ptrToCommandName, addCommandToken) == 0) {                   //Modify here
-    result = addCommand();
-    print2(">    The sum is = ", result);
+  if (strcmp(ptrToCommandName, ssidCommandToken) == 0) {                   //Modify here
+    result = ssidCommand();
+    print2(">", result);
 
   } else {
-    if (strcmp(ptrToCommandName, subtractCommandToken) == 0) {           //Modify here
-      result = subtractCommand();                                       //K&R string.h  pg. 251
-      print2(">    The difference is = ", result);
+    if (strcmp(ptrToCommandName, pwdCommandToken) == 0) {           //Modify here
+      result = pwdCommand();                                       //K&R string.h  pg. 251
+      print2(">", result);
 
     } else {
       nullCommand(ptrToCommandName);

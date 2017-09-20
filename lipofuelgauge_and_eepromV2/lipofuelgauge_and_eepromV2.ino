@@ -35,11 +35,20 @@ void readEEPROM()
   
 }
 
-void writeEEPROM(char* setting)
+void writeSSID(char* new_ssid)
 {
-    for (int i = 0; i < strlen(setting); ++i)
+    for (int i = 0; i < strlen(new_ssid); ++i)
     {
-        EEPROM.write(i, setting[i]);
+        EEPROM.write(i, new_ssid[i]);
+    }
+   EEPROM.commit();
+}
+
+void writePWD(char* new_pwd)
+{
+    for (int i = 16; i < strlen(new_pwd); ++i)
+    {
+        EEPROM.write(i, new_pwd[i]);
     }
    EEPROM.commit();
 }

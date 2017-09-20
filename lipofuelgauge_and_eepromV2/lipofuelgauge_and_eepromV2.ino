@@ -3,64 +3,45 @@
 
 #include "CommandLine.h"
 
-char* ssid;
-char* pwd;
+char ssid[16];
+char pwd[16];
+
+bool appendCharToCharArray( char *array, int n, char c )
+{
+    int sz = strlen( array );
+    if ( sz + 1 < n ) 
+    {
+        array[sz] = c;
+        array[sz + 1] = '\0';
+    }       
+    return ( sz + 1 < n );
+}
 
 void readEEPROM()
 {
-  byte hiByte = EEPROM.read(diameterAddr);
-  byte loByte = EEPROM.read(diameterAddr+1);
+   memset(ssid,0,strlen(ssid));
+   memset(pwd,0,strlen(pwd));
   
-  diameter = word(hiByte,loByte);
+  for (int i = 0; i < 16; ++i)
+    {
+       appendCharToCharArray(ssid,16,char(EEPROM.read(i)););
+    }
   
-  Serial.print("Reading EEPROM: Diameter = ");
-  Serial.print(diameter);
+  for (int i = 16; i < 32; ++i)
+    {
+       appendCharToCharArray(pwd,16,char(EEPROM.read(i)););
+    }
   
-  hiByte = EEPROM.read(heightAddr);
-  loByte = EEPROM.read(heightAddr+1);
   
-  height = word(hiByte,loByte);
-  
-  Serial.print(", height = ");
-  Serial.print(height);
-  
-  hiByte = EEPROM.read(offsetAddr);
-  loByte = EEPROM.read(offsetAddr+1);
-  
-  distanceOffset = word(hiByte,loByte);
-  
-  Serial.print(", offset = ");
-  Serial.println(distanceOffset);
 }
 
-void writeEEPROM()
+void writeEEPROM(char* setting)
 {
-  Serial.print("Writing EEPROM: diameter = ");
-  Serial.print(diameter);
- 
-  byte hiByte = highByte(diameter);
-  byte loByte = lowByte(diameter);
-  
-  EEPROM.write(diameterAddr,hiByte);
-  EEPROM.write(diameterAddr+1,loByte);
-  
-  hiByte = highByte(height);
-  loByte = lowByte(height);
-  
-  Serial.print(", height = ");
-  Serial.print(height);
-  
-  EEPROM.write(heightAddr,hiByte);
-  EEPROM.write(heightAddr+1,loByte);
-  
-  Serial.print(", distanceOffset = ");
-  Serial.println(distanceOffset);
-  
-  hiByte = highByte(distanceOffset);
-  loByte = lowByte(distanceOffset);
-  
-  EEPROM.write(offsetAddr,hiByte);
-  EEPROM.write(offsetAddr+1,loByte);
+    for (int i = 0; i < strlen(setting); ++i)
+    {
+        EEPROM.write(i, setting[i]);
+    }
+   EEPROM.commit();
 }
 
 

@@ -181,12 +181,23 @@ nullCommand(char * ptrToCommandName) {
 
 char* ssidCommand()
 {
-  return readWord();
+  char* arg = readWord();
+  
+  if(arg!=NULL) //ssid arg given => now save new ssid
+  {
+    writeSSID(arg);
+  }
+      return arg;
 }
 
 char* pwdCommand()
 {
-  return readWord();
+  if(arg!=NULL) //ssid arg given => now save new ssid
+  {
+    writePWD(arg);
+  }
+   
+  return arg;
 }
 
 /****************************************************

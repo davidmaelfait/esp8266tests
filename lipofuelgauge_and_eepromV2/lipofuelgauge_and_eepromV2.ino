@@ -3,6 +3,9 @@
 
 #include "CommandLine.h"
 
+const char* ssidCommandToken = "ssid";
+const char* pwdCommandToken = "pwd";
+
 char ssid[16];
 char pwd[16];
 
@@ -21,15 +24,26 @@ void readEEPROM()
 {
    memset(ssid,0,strlen(ssid));
    memset(pwd,0,strlen(pwd));
+
+  char c;
+  for (int i = 0; i < 16; ++i)
+    {
+      c = char(EEPROM.read(i));
+        
+        if(c=='\0')
+          break;
+      
+        appendCharToCharArray(ssid,16,c);
+    }
   
   for (int i = 0; i < 16; ++i)
     {
-       appendCharToCharArray(ssid,16,char(EEPROM.read(i)););
-    }
-  
-  for (int i = 16; i < 32; ++i)
-    {
-       appendCharToCharArray(pwd,16,char(EEPROM.read(i)););
+        c = char(EEPROM.read(i+16));
+        
+        if(c=='\0')
+          break;
+      
+       appendCharToCharArray(pwd,16,c);
     }
   
   
@@ -37,8 +51,9 @@ void readEEPROM()
 
 void writeSSID(char* new_ssid)
 {
-    for (int i = 0; i < strlen(new_ssid); ++i)
+    for (int i = 0; i <= strlen(new_ssid); ++i)
     {
+        //print2("\nssid ", new_ssid[i]);
         EEPROM.write(i, new_ssid[i]);
     }
    EEPROM.commit();
@@ -46,25 +61,83 @@ void writeSSID(char* new_ssid)
 
 void writePWD(char* new_pwd)
 {
-    for (int i = 16; i < strlen(new_pwd); ++i)
+    for (int i = 0; i <= strlen(new_pwd); ++i)
     {
-        EEPROM.write(i, new_pwd[i]);
+      //print2("\nssid ", new_pwd[i]);
+        EEPROM.write(16+i, new_pwd[i]);
     }
    EEPROM.commit();
 }
 
 
-void
-setup() {
+char* ssidCommand()
+{
+  char* arg = readWord();
+  
+  if(arg!=NULL) //ssid arg given => now save new ssid
+  {
+    writeSSID(arg);
+     return arg;
+  }
+   else
+    return ssid;  
+}
+
+char* pwdCommand()
+{
+char* arg = readWord();
+  
+  if(arg!=NULL) //ssid arg given => now save new ssid
+  {
+    writePWD(arg);
+     return arg;
+  }
+  else 
+   return pwd;
+ 
+}
+
+
+bool DoMyCommand(char * commandLine) 
+{
+  char* result;
+
+  char * ptrToCommandName = strtok(commandLine, delimiters);
+
+  if (strcmp(ptrToCommandName, ssidCommandToken) == 0) 
+  {                   
+    result = ssidCommand();
+  } 
+  else if (strcmp(ptrToCommandName, pwdCommandToken) == 0) 
+  {           
+      result = pwdCommand();                                     
+   } 
+    else 
+    {
+      result = new char[50]; 
+      ucCommand(ptrToCommandName,result);
+    } 
+
+     print2("\r\n>", result);
+     // delete[] result;
+}
+
+void setup() {
   Serial.begin(115200);
 
    EEPROM.begin(512);
 
    readEEPROM();
+
+    Serial.println("hello");
+    Serial.print(">");
 }
 
-void
-loop() {
+void loop() {
   bool received = getCommandLineFromSerialPort(CommandLine);      //global CommandLine is defined in CommandLine.h
-  if (received) DoMyCommand(CommandLine);
+  if (received)
+  {
+      DoMyCommand(CommandLine);
+      Serial.print(">");
+  }
 }

@@ -1,13 +1,19 @@
 //writing to persistent memory for saving settings
 #include <EEPROM.h>
-
+#include "MAX17043.h"
+#include "Wire.h"
 #include "CommandLine.h"
 
 const char* ssidCommandToken = "ssid";
 const char* pwdCommandToken = "pwd";
+const char* battCommandToken = "batt";
 
 char ssid[16];
 char pwd[16];
+
+
+
+MAX17043 batteryMonitor;
 
 bool appendCharToCharArray( char *array, int n, char c )
 {
@@ -97,6 +103,27 @@ char* arg = readWord();
  
 }
 
+void battCommand(char* reply)
+{
+
+  float cellVoltage = batteryMonitor.getVCell();
+   strcat(reply, "Voltage: ");
+
+  char cv[10];
+  dtostrf(cellVoltage, 4,1,cv);  
+  
+   strcat(reply,cv);
+   strcat(reply, "V , ");
+
+  float stateOfCharge = batteryMonitor.getSoC();
+   strcat(reply, "State of charge: ");
+
+   char soc[10];
+    dtostrf(stateOfCharge, 4,1,soc);  
+   strcat(reply, soc);
+   strcat(reply, "%"); 
+}
+
 
 bool DoMyCommand(char * commandLine) 
 {
@@ -112,6 +139,11 @@ bool DoMyCommand(char * commandLine)
   {           
       result = pwdCommand();                                     
    } 
+   else if (strcmp(ptrToCommandName, battCommandToken) == 0) 
+  {   
+       result = new char[50]; 
+      battCommand(result);                                     
+   } 
     else 
     {
       result = new char[50]; 
@@ -123,11 +155,17 @@ bool DoMyCommand(char * commandLine)
 }
 
 void setup() {
+  Wire.begin(); 
+  
   Serial.begin(115200);
 
    EEPROM.begin(512);
 
    readEEPROM();
+
+  batteryMonitor.reset();
+  batteryMonitor.quickStart();
+  delay(1000);
 
     Serial.println("hello");
     Serial.print(">");
